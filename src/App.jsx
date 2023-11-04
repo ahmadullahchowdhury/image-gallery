@@ -161,7 +161,7 @@
 import { useState } from "react";
 import "./App.css";
 import { Images } from "./util/image.util";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import { DndContext, MouseSensor, TouchSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -171,6 +171,8 @@ function App() {
   const [dragging, setDragging] = useState(false);
   const [draggedImage, setDraggedImage] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
+
+  const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
   const ImageCard = ({ elm, index }) => {
 
@@ -330,7 +332,7 @@ function App() {
         </div>
         
 
-        <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd} >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd} >
           <SortableContext items={images} strategy={rectSortingStrategy}>
         <div
           // onDragOver={handleDragOver}
