@@ -4,11 +4,12 @@ Simple React Image gallery project with Drag and Drop Functionality.
 
 
 - Drag and drop functionality.
-- Image onlick select and unselect
+- Image onclick select and unselect
 - Bulk Delete 
 - Bulk Unselect
 - Responsive Grid Design
 - One Large feature image
+- Google font, Hero icons etc.
 
 ## Live Link 🔗 
 
