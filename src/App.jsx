@@ -1,14 +1,26 @@
 import { useState } from "react";
 import "./App.css";
 import { Images } from "./util/image.util";
-import { DndContext, MouseSensor, TouchSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
-import { SortableContext, arrayMove, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import {
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 function App() {
   const [images, setImages] = useState([...Images]);
 
-
+  ////to handle sensors
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -22,64 +34,7 @@ function App() {
     })
   );
 
-
-  const ImageCard = ({ elm, index }) => {
-
-    
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-    } = useSortable({ id: elm.id });
-    const style = {
-      transition,
-      transform: CSS.Transform.toString(transform),
-    };
-    return (
-      <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-        className={`${index === 0 ? "row-span-2 col-span-2" : " "} group `}
-        key={index}
-        onClick={() => {
-          console.log('Image clicked')
-          checked(index)}}      >
-        <div className="relative overflow-hidden rounded-lg border-slate border-2  ">
-          <img
-            className="w-full"
-            data-id={elm.id}
-            
-            src={elm?.image}
-          />
-          <div
-            className={`absolute h-full w-full ${
-              elm?.isChecked
-                ? "bottom-0 opacity-100 bg-black/20"
-                : "bg-black/40 opacity-0 -bottom-10"
-            }  group-hover:bottom-0 group-hover:opacity-100 ease-out  group-hover:ease-out delay-150 duration-300`}
-          >
-            <div className=" py-5 px-5">
-              <input
-                className="w-5 h-5"
-                onClick={() => {
-                  console.log('Image clicked')
-                  checked(index)}}
-                checked={elm?.isChecked}
-                type="checkbox"
-              ></input>
-            </div>
-          </div>
-
-          
-        </div>
-      </div>
-    );
-  };
-
+  //to handle bulk unselect
   const handleUnChecked = () => {
     const uncheckedImages = images.map((img) => {
       return { ...img, isChecked: false };
@@ -87,20 +42,22 @@ function App() {
     setImages(uncheckedImages);
   };
 
+  //to handle individual select
   const checked = (index) => {
-    console.log('checked')
+    console.log("checked");
     const updatedImages = [...images];
     updatedImages[index].isChecked = !updatedImages[index].isChecked;
     setImages(updatedImages);
   };
 
+  //to handle delete
   const handleDelete = () => {
     console.log("delete");
     const remainingImages = images.filter((image) => !image.isChecked);
     setImages(remainingImages);
   };
 
-
+  //to handle dnd kit OnDragEnd
   const onDragEnd = (event) => {
     // console.log(event)
     const { active, over } = event;
@@ -112,16 +69,63 @@ function App() {
       const newIndex = images.findIndex((image) => image.id === over.id);
       return arrayMove(images, oldIndex, newIndex);
     });
-  }
+  };
 
-
-
+  //keeping the total selected img
   const totalChecked = images.filter((image) => image.isChecked).length ?? 0;
+
+  //Separate imageCard for dnd kit with dnd kit function and props
+  const ImageCard = ({ elm, index }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: elm.id });
+    const style = {
+      transition,
+      transform: CSS.Transform.toString(transform),
+    };
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`${index === 0 ? "row-span-2 col-span-2" : " "} group `}
+        key={index}
+        onClick={() => {
+          console.log("Image clicked");
+          checked(index);
+        }}
+      >
+        <div className="relative overflow-hidden rounded-lg border-slate border-2  ">
+          <img className="w-full" data-id={elm.id} src={elm?.image} />
+          <div
+            className={`absolute h-full w-full ${
+              elm?.isChecked
+                ? "bottom-0 opacity-100 bg-black/20"
+                : "bg-black/40 opacity-0 -bottom-10"
+            }  group-hover:bottom-0 group-hover:opacity-100 ease-out  group-hover:ease-out delay-150 duration-300`}
+          >
+            <div className=" py-5 px-5">
+              <input
+                className="w-5 h-5"
+                onClick={() => {
+                  console.log("Image clicked");
+                  checked(index);
+                }}
+                checked={elm?.isChecked}
+                type="checkbox"
+              ></input>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
       <div className="bg-white rounded-xl   ">
         <div className="px-1.5 py-3 border-black border-b-2">
+          {/* checking if any image selected, if selected then delete button will appear */}
           {totalChecked ? (
             <div className="flex flex-row items-center justify-between  ">
               <div className="flex gap-4 border-white border-4">
@@ -149,42 +153,43 @@ function App() {
             </div>
           )}
         </div>
-        
-
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd} >
-          <SortableContext items={images} strategy={rectSortingStrategy}>
-        <div
-          
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 pt-5 "
+        {/* dnd kit component */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onDragEnd}
         >
-          {images.length > 0 ? (
-            images.map((elm, index) => (
-              <ImageCard key={index} index={index} elm={elm} />
-            ))
-          ) : (
-            <p className="text-3xl font-bold">No Images </p>
-          )}
-          
-          <div className="flex flex-col w-full items-center justify-center bg-slate-100 border-dashed border-black border-2 rounded-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
+          <SortableContext items={images} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 pt-5 ">
+              {/* checking if any image available or not */}
+              {images?.length > 0 ? (
+                images.map((elm, index) => (
+                  <ImageCard key={index} index={index} elm={elm} />
+                ))
+              ) : (
+                <p className="text-3xl font-bold">No Images </p>
+              )}
 
-            <p>Upload Images</p>
-          </div>
-        </div>
-        </SortableContext>
+              <div className="flex flex-col w-full items-center justify-center bg-slate-100 border-dashed border-black border-2 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                  />
+                </svg>
+
+                <p>Upload Images</p>
+              </div>
+            </div>
+          </SortableContext>
         </DndContext>
       </div>
     </>

@@ -1,8 +1,23 @@
-# React + Vite
+# Image Gallery 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Simple React Image gallery project with Drag and Drop Functionality.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Drag and drop functionality.
+- Image onlick select and unselect
+- Bulk Delete 
+- Bulk Unselect
+- Responsive Grid Design
+- One Large feature image
+
+## Live Link 🔗 
+
+https://image-gallery-react-ahm.vercel.app/
+
+### Packages
+- Tailwind CSS
+- dnd-kit
+
+### How to run 
+- npm install   # Install dependencies
+- npm run dev   # Start the development server
