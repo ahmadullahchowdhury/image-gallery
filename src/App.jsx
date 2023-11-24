@@ -185,7 +185,7 @@ function App() {
               )}
               <div className="text-base mt-1 md:text-2xl font-semibold">
                 {totalChecked ? (
-                  <p><span className="text-red-500">{`${totalChecked}`}</span>Images Selected</p>
+                  <p><span className="text-red-500 mr-2">{`${totalChecked}`}</span>Images Selected</p>
                 ) : (
                   "Image Gallery"
                 )}
