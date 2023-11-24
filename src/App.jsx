@@ -10,19 +10,22 @@ import {
 import {
   SortableContext,
   arrayMove,
-  rectSortingStrategy
+  rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import "./App.css";
 
-import uploadSVG from "././assets/upload.svg";
 import ImageCard from "./Components/ImageCard";
 import OverlayImage from "./Components/OverlayImage";
+import Loader from "./Components/Loader";
+import ImageUploader from "./Components/ImageUploader";
 
 function App() {
   const [images, setImages] = useState([]);
+  const [image, setImage] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
+  const [totalChecked, setTotalChecked] = useState(0);
 
   useEffect(() => {
     axios
@@ -58,6 +61,8 @@ function App() {
       return { ...img, isChecked: false };
     });
     setImages(uncheckedImages);
+
+    setTotalChecked(0);
   };
 
   //to handle individual select
@@ -65,6 +70,8 @@ function App() {
     const updatedImages = [...images];
     updatedImages[index].isChecked = !updatedImages[index].isChecked;
     setImages(updatedImages);
+
+    setTotalChecked(images.filter((image) => image.isChecked).length ?? 0);
   };
 
   //to handle delete
@@ -93,6 +100,7 @@ function App() {
       .catch(function (error) {
         console.log(error);
       });
+    setTotalChecked(0);
   };
 
   const handleDragStart = (event) => {
@@ -115,12 +123,9 @@ function App() {
       const newIndex = images.findIndex((image) => image.id === over.id);
       return arrayMove(images, oldIndex, newIndex);
     });
-
-    // setActiveImage(null);
   };
 
-  //keeping the total selected img
-  const totalChecked = images.filter((image) => image.isChecked).length ?? 0;
+  // setTotalChecked(images.filter((image) => image.isChecked).length ?? 0);
 
   //Separate imageCard for dnd kit with dnd kit function and props
 
@@ -128,6 +133,8 @@ function App() {
     const form = new FormData();
 
     const file = e.target.files[0];
+    setImage(URL.createObjectURL(file));
+
     form.append("image", file);
 
     axios
@@ -159,39 +166,45 @@ function App() {
       .catch(function (error) {
         console.log(error);
       });
+    setImage(null);
   };
 
   return (
     <>
       <div className="bg-white rounded-xl">
-        <div className="px-1.5 py-3 border-black border-b-2">
-          {/* checking if any image selected, if selected then delete button will appear */}
-          {totalChecked ? (
-            <div className="flex flex-row items-center justify-between  ">
-              <div className="flex gap-4 border-white border-4">
+        <div className="px-1.5 py-3 flex justify-between  border-black border-b-2">
+          <div className="flex space-x-10 items-center    ">
+            <div className="flex items-center gap-4 border-white border-4">
+              {!!totalChecked && (
                 <input
                   className="mt-1 h-5 w-5 md:h-7 md:w-7"
                   type="checkbox"
                   onChange={() => handleUnChecked()}
-                  defaultChecked={totalChecked > 0 ? true : false}
+                  checked={totalChecked > 0 ? true : false}
                 />
-                <span className="text-base md:text-2xl font-semibold">
-                  {totalChecked} Images Selected
-                </span>
+              )}
+              <div className="text-base mt-1 md:text-2xl font-semibold">
+                {totalChecked ? (
+                  <p><span className="text-red-500">{`${totalChecked}`}</span>Images Selected</p>
+                ) : (
+                  "Image Gallery"
+                )}
               </div>
-
+            </div>
+          </div>
+          <div className="flex gap-3">
+            {!!totalChecked && (
               <div
-                className=" text-red-500 hover:cursor-pointer  flex justify-center items-center gap-3 text-base md:text-2xl  bg-slate-200 hover:bg-slate-400 rounded-md  font-semibold px-2 md:px-4 py-1 md:py-2"
+                className="  text-red-500 hover:cursor-pointer  text-base md:text-2xl  bg-slate-200 hover:bg-slate-300 rounded-md  font-semibold px-2 md:px-4 py-1 md:py-2"
                 onClick={handleDelete}
               >
-                Delete
+                <span className="mt-3 bg-left-bottom bg-gradient-to-r from-red-500 to-red-500 bg-[length:0%_2px] bg-no-repeat hover:bg-[length:100%_2px] transition-all duration-500 ease-out">
+                  Delete
+                </span>
               </div>
-            </div>
-          ) : (
-            <div className="text-base md:text-2xl py-2 font-semibold">
-              Image Gallery
-            </div>
-          )}
+            )}
+            <ImageUploader handleFileChange={handleFileChange} />
+          </div>
         </div>
         <DndContext
           sensors={sensors}
@@ -201,7 +214,7 @@ function App() {
           onDragCancel={handleDragCancel}
         >
           <SortableContext items={images} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 pt-5 ">
+            <div className="grid grid-cols-2  md:grid-cols-3 lg:grid-cols-5 gap-5 pt-5 ">
               {images?.length > 0 ? (
                 images.map((elm, index) => (
                   <ImageCard
@@ -212,30 +225,37 @@ function App() {
                   />
                 ))
               ) : (
-                <p className="text-3xl font-bold">No Images </p>
+                <Loader />
               )}
-              <div className="h-56 w-56 flex flex-col  items-center justify-center bg-slate-100 border-dashed border-black border-2 rounded-lg">
-                <img className="h-10 w-10" src={uploadSVG} />
-                <label
-                  htmlFor="file-upload"
-                  className=" border-black  border-2 px-2 rounded-lg my-2 shadow-md  cursor-pointer custom-file-upload"
-                >
-                  Custom Upload
-                </label>
-                <input
-                  className="cursor-pointer"
-                  id="file-upload"
-                  type="file"
-                  name="image"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                  accept="image/*"
-                />
-              </div>
+
+              {image ? (
+                <div className="relative w-56 h-56 border-2 border-solid rounded-xl">
+                  <img
+                    src={image}
+                    className="h-full w-full object-cover opacity-50 "
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    className="w-10 h-10 animate-spin absolute bottom-24 right-24"
+                  >
+                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                  </svg>
+                </div>
+              ) : (
+                ""
+              )}
             </div>
           </SortableContext>
-          <DragOverlay>
-            {activeImage ? <OverlayImage url={activeImage} /> : null}
+          <DragOverlay adjustScale >
+            {activeImage ? <OverlayImage url={activeImage} isDragging /> : null}
           </DragOverlay>
         </DndContext>
       </div>
