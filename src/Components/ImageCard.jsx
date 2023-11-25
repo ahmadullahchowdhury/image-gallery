@@ -14,6 +14,7 @@ const ImageCard = ({ elm, index, checked }) => {
     transform: CSS.Transform.toString(transform),
     transition: transition || undefined,
     opacity: isDragging ? "0.5" : "1",
+    touchAction: 'none',
   };
   return (
     <div
