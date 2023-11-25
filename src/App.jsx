@@ -46,13 +46,11 @@ function App() {
     useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
-       
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
         distance: 8,
-        delay:300,
       },
     })
   );
