@@ -6,7 +6,7 @@ const Loader = () => {
       {Array.from({ length: 9 }, (_, index) => (
         <div
           key={index}
-          className="animate-pulse border-2 overflow-hidden border-gray-300 rounded-lg w-56 h-56"
+          className="animate-pulse border-2 overflow-hidden  border-gray-300 rounded-lg w-56 h-56"
         >
           <div className="flex items-center justify-center">
             <svg
