@@ -20,6 +20,8 @@ import ImageCard from "./Components/ImageCard";
 import OverlayImage from "./Components/OverlayImage";
 import Loader from "./Components/Loader";
 import ImageUploader from "./Components/ImageUploader";
+import { Analytics } from '@vercel/analytics/react';
+
 
 function App() {
   const [images, setImages] = useState([]);
@@ -173,19 +175,19 @@ function App() {
     <>
       <div className="bg-white rounded-xl">
         <div className="px-1.5 py-3 flex justify-between  border-black border-b-2">
-          <div className="flex space-x-10 items-center    ">
-            <div className="flex items-center gap-4 border-white border-4">
+          <div className="flex items-center space-x-10 ">
+            <div className="flex items-center gap-4 border-4 border-white">
               {!!totalChecked && (
                 <input
-                  className="mt-1 h-5 w-5 md:h-7 md:w-7"
+                  className="w-5 h-5 mt-1 md:h-7 md:w-7"
                   type="checkbox"
                   onChange={() => handleUnChecked()}
                   checked={totalChecked > 0 ? true : false}
                 />
               )}
-              <div className="text-base mt-1 md:text-2xl font-semibold">
+              <div className="mt-1 text-base font-semibold md:text-2xl">
                 {totalChecked ? (
-                  <p><span className="text-red-500 mr-2">{`${totalChecked}`}</span>Images Selected</p>
+                  <p><span className="mr-2 text-red-500">{`${totalChecked}`}</span>Images Selected</p>
                 ) : (
                   "Image Gallery"
                 )}
@@ -195,7 +197,7 @@ function App() {
           <div className="flex gap-3">
             {!!totalChecked && (
               <div
-                className="  text-red-500 hover:cursor-pointer  text-base md:text-2xl  bg-slate-200 hover:bg-slate-300 rounded-md  font-semibold px-2 md:px-4 py-1 md:py-2"
+                className="px-2 py-1 text-base font-semibold text-red-500 rounded-md hover:cursor-pointer md:text-2xl bg-slate-200 hover:bg-slate-300 md:px-4 md:py-2"
                 onClick={handleDelete}
               >
                 <span className="mt-3 bg-left-bottom bg-gradient-to-r from-red-500 to-red-500 bg-[length:0%_2px] bg-no-repeat hover:bg-[length:100%_2px] transition-all duration-500 ease-out">
@@ -214,7 +216,7 @@ function App() {
           onDragCancel={handleDragCancel}
         >
           <SortableContext items={images} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-2  md:grid-cols-3 lg:grid-cols-5 gap-5 pt-5 ">
+            <div className="grid grid-cols-2 gap-5 pt-5 md:grid-cols-3 lg:grid-cols-5 ">
               {images?.length > 0 ? (
                 images.map((elm, index) => (
                   <ImageCard
@@ -232,7 +234,7 @@ function App() {
                 <div className="relative w-56 h-56 border-2 border-solid rounded-xl">
                   <img
                     src={image}
-                    className="h-full w-full object-cover opacity-50 "
+                    className="object-cover w-full h-full opacity-50 "
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +246,7 @@ function App() {
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    className="w-10 h-10 animate-spin absolute bottom-24 right-24"
+                    className="absolute w-10 h-10 animate-spin bottom-24 right-24"
                   >
                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                   </svg>
